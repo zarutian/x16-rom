@@ -523,10 +523,28 @@ GRAPH_draw_rect:
 ; Pass:      r0   middle_x
 ;            r1   middle_y
 ;            r2   radius
+;            .A   which quadrants to leave out
+;                 $00 none
+;                 $01 1st quadrant
+;                 $02 2nd quadrant
+;                 $04 3rd quadrant
+;                 $08 4th quadrant
+;                 $0F all quadrants
 ; (see http://members.chello.at/~easyfilter/bresenham.html#circle )
 ;---------------------------------------------------------------
 plotCircle:
-
+        php      ; check for zero radius
+	pha
+	lda r2L
+        ora r2H
+	bne @0
+        pla
+@1:	plp
+        rts
+@0:     pla      ; check if all quadrants are being omitted
+        cmp #$0F
+	beq @1
+	
 ;---------------------------------------------------------------
 ; GRAPH_draw_image
 ;
