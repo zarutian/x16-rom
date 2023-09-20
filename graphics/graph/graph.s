@@ -607,6 +607,15 @@ plotCircle:
         jsr plotPixel
 
 @6:     MoveW r13, r2    ; r = err
+                         ; if (r <= y)
+        CmpW r2, r12
+	bcs @7
+        IncrW r12        ; ++y
+	MoveW r12, r14
+        LshiftW r14      ; times two
+	IncrW r14        ; +1
+        AddW r14, r13    ; add the result into err
+@7:
 
 ;---------------------------------------------------------------
 ; plotPixel
