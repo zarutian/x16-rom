@@ -656,8 +656,7 @@ plotCircle:
 	IncW r14         ; +1
         AddW r14, r13    ; add the result into err
 
-@9:     ZeroW r14
-        CmpW r11, r14
+@9:     CmpWI r11, 0
 	bcc @2
 
         pla
