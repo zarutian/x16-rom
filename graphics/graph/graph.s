@@ -1,8 +1,10 @@
 ;----------------------------------------------------------------------
 ; Commander X16 KERNAL: Graphics library
-;----------------------------------------------------------------------
+;-----------------------------------------------------------------------
 ; (C)2019 Michael Steil, License: 2-clause BSD
 ; (Bresenham code based on GEOS by Berkeley Softworks)
+; (C)2023 Zarutian, License: 2-clause BSD
+; (Algorithms from http://members.chello.at/~easyfilter/bresenham.html )
 
 .include "mac.inc"
 .include "regs.inc"
@@ -440,7 +442,7 @@ VerticalLine:
 ;            r1   y
 ;            r2   width
 ;            r3   height
-;            r4   corner radius [TODO]
+;            r4   corner radius [in work]
 ;            c    1: fill
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
@@ -514,6 +516,16 @@ GRAPH_draw_rect:
 	PopW r3
 	PopW r2
 	rts
+
+;---------------------------------------------------------------
+; plotCircle
+;
+; Pass:      r0   middle_x
+;            r1   middle_y
+;            r2   radius
+; (see http://members.chello.at/~easyfilter/bresenham.html#circle )
+;---------------------------------------------------------------
+plotCircle:
 
 ;---------------------------------------------------------------
 ; GRAPH_draw_image
