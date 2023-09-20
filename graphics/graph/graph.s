@@ -639,10 +639,10 @@ plotCircle:
                          ; if (r <= y)
         CmpW r2, r12 
 	bcs @7
-        IncrW r12        ; ++y
+        IncA r12         ; ++y
 	MoveW r12, r14
         LshiftW r14      ; times two
-	IncrW r14        ; +1
+	IncW r14         ; +1
         AddW r14, r13    ; add the result into err
 	
 @7:                      ; if (r > x ||
@@ -650,10 +650,10 @@ plotCircle:
 	bcs @8
         CmpW r13, r12    ;  err > y)
 	bcc @9
-@8:     IncrW r11        ; ++x
+@8:     IncW r11         ; ++x
 	MoveW r11, r14
         LshiftW r14      ; times two
-	IncrW r14        ; +1
+	IncW r14         ; +1
         AddW r14, r13    ; add the result into err
 
 @9:     ZeroW r14
