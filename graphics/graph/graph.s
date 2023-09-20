@@ -661,8 +661,8 @@ plotCircle:
 	bcc @2
 
         pla
-	PullW r7
-        PullW r6
+	PopW r7
+        PopW r6
 	plp
         rts
 
