@@ -530,7 +530,10 @@ GRAPH_draw_rect:
 ;                 $04 3rd
 ;                 $08 4th
 ;                 $0F all
-;            .A   colour
+;            .A   stroke colour
+;            .C   1: fill with secondary colour
+;            .Z   0: on outside
+;                 1: on inside
 ; Saved:     r6   saved middle_x
 ;            r7   saved middle_y
 ; Scratch:   r11  x
@@ -553,8 +556,10 @@ plotCircle:
 	beq @1
 
         pla              ; save the saved registers
+	plp
 	PushW r6
         PushW r7
+	php
         pha
 
         MoveW r2, r11    ; int x = -r
@@ -576,6 +581,12 @@ plotCircle:
 	pla              ; fetch but keep the accumulator on stack
         pha
 	jsr plotPixel
+        pla              ; fetch but keep both the accumulator and
+	plp              ; the status register on stack
+        php
+	pha
+        bcc @3           ; branch if carry clear because no fill is
+	                 ; requested
  
 @3:     lda r3L          ; 2nd quadrant
         bbs1 @4
@@ -586,6 +597,12 @@ plotCircle:
 	pla
         pha
 	jsr plotPixel
+        pla              ; fetch but keep both the accumulator and
+	plp              ; the status register on stack
+        php
+	pha
+        bcc @4           ; branch if carry clear because no fill is
+	                 ; requested
  
 @4:     lda r3L          ; 3rd quadrant
         bbs2 @5
@@ -596,6 +613,12 @@ plotCircle:
 	pla
         pha
 	jsr plotPixel
+        pla              ; fetch but keep both the accumulator and
+	plp              ; the status register on stack
+        php
+	pha
+        bcc @5           ; branch if carry clear because no fill is
+	                 ; requested
  
 @5:     lda r3L          ; 4th quadrant
         bbs3 @6
@@ -605,6 +628,12 @@ plotCircle:
         pla
 	pha
         jsr plotPixel
+	pla              ; fetch but keep both the accumulator and
+	plp              ; the status register on stack
+        php
+	pha
+        bcc @6           ; branch if carry clear because no fill is
+	                 ; requested
 
 @6:     MoveW r13, r2    ; r = err
                          ; if (r <= y)
