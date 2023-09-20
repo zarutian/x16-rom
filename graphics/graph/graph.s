@@ -584,8 +584,18 @@ plotCircle:
         bbs1 @4
 	MoveW r6, r0     ; xm - y
         SubW  r12, r0
+	MoveW r7, r1     ; ym - x
+        SubW  r11, r1
+	pla
+        pha
+	jsr plotPixel
+ 
+@4:     lda r3L          ; 3rd quadrant
+        bbs2 @5
+	MoveW r6, r0     ; xm + x
+        AddW  r11, r0
 	MoveW r7, r1     ; ym - y
-        SubW  r12, r1
+        SubW  r12, r0
 	pla
         pha
 	jsr plotPixel
