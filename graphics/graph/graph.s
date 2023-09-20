@@ -600,6 +600,13 @@ plotCircle:
 	pha
         bcc @3           ; branch if carry clear because no fill is
 	                 ; requested
+		         ; r0 and r1 should still have the x,y coords
+	bne @A
+                         ; fill on the inside, that is, from plotted
+			 ; pixel to xm, in that y line
+        @A:
+	                 ; fill on the outside
+		         ; to be implemented
  
 @3:     lda r3L          ; 2nd quadrant
         bbs1 @4
