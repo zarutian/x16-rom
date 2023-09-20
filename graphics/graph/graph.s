@@ -533,7 +533,6 @@ GRAPH_draw_rect:
 ;            .A   colour
 ; Saved:     r6   saved middle_x
 ;            r7   saved middle_y
-;            r8   saved radius
 ; Scratch:   r11  x
 ;            r12  y
 ;            r13  err
@@ -556,7 +555,6 @@ plotCircle:
         pla              ; save the saved registers
 	PushW r6
         PushW r7
-	PushW r8
         pha
 
         MoveW r2, r11    ; int x = -r
@@ -568,7 +566,6 @@ plotCircle:
         SubW r14, r13    ; r13 = r13 - r14
         MoveW r0, r6
 	MoveW r1, r7
-        MoveW r2, r8
 	
 @2:     lda r3L          ; 1st quadrant
         bbs0 @3
@@ -599,6 +596,17 @@ plotCircle:
 	pla
         pha
 	jsr plotPixel
+ 
+@5:     lda r3L          ; 4th quadrant
+        bbs3 @6
+	MoveW r6, r0     ; xm + y
+        AddW r12, r0
+	MoveW r7, r1     ; ym + x
+        pla
+	pha
+        jsr plotPixel
+
+@6:     MoveW r13, r2    ; r = err
 
 ;---------------------------------------------------------------
 ; plotPixel
