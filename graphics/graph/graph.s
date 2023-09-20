@@ -517,6 +517,19 @@ GRAPH_draw_rect:
 	PopW r2
 	rts
 
+; should probably be in mac.inc
+.macro InvertB location
+        lda location
+        eor #$FF
+	sta location
+.end
+.macro NegateW location
+        InvertB location+0
+	InvertB location+1
+        AddVW 1, location
+.end
+;
+
 ;---------------------------------------------------------------
 ; plotCircle
 ;
@@ -564,7 +577,7 @@ plotCircle:
 
         MoveW r2, r11    ; int x = -r
 	NegateW r11
-        ZeroW r12        ; int y = 0
+        LoadW r12, 0     ; int y = 0
 	MoveW r2, r14    ; int err = 2 - (2 * r)
         LshiftW r14      ; radius times two
 	LoadW 2, r13     ; set r13 as $0002
