@@ -530,6 +530,9 @@ GRAPH_draw_rect:
 ;                 $04 3rd quadrant
 ;                 $08 4th quadrant
 ;                 $0F all quadrants
+; Scratch:   r11  x
+;            r12  y
+;            r13  err
 ; (see http://members.chello.at/~easyfilter/bresenham.html#circle )
 ;---------------------------------------------------------------
 plotCircle:
@@ -544,6 +547,15 @@ plotCircle:
 @0:     pla      ; check if all quadrants are being omitted
         cmp #$0F
 	beq @1
+        pha
+
+        MoveW r2, r11    ; int x = -r
+	NegateW r11
+        ZeroW r12        ; int y = 0
+	MoveW r2, r14    ; int err = 2 - (2 * r)
+        LshiftW r14      ; radius times two
+	LoadW 2, r13     ; set r13 as $0002
+        SubW r14, r13    ; r13 = r13 - r14
 	
 ;---------------------------------------------------------------
 ; GRAPH_draw_image
