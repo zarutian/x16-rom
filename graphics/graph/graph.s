@@ -523,16 +523,21 @@ GRAPH_draw_rect:
 ; Pass:      r0   middle_x
 ;            r1   middle_y
 ;            r2   radius
-;            .A   which quadrants to leave out
+;            r3L  which quadrant to omitt
 ;                 $00 none
-;                 $01 1st quadrant
-;                 $02 2nd quadrant
-;                 $04 3rd quadrant
-;                 $08 4th quadrant
-;                 $0F all quadrants
+;                 $01 1st
+;                 $02 2nd
+;                 $04 3rd
+;                 $08 4th
+;                 $0F all
+;            .A   colour
+; Saved:     r6   saved middle_x
+;            r7   saved middle_y
+;            r8   saved radius
 ; Scratch:   r11  x
 ;            r12  y
 ;            r13  err
+;            r14
 ; (see http://members.chello.at/~easyfilter/bresenham.html#circle )
 ;---------------------------------------------------------------
 plotCircle:
@@ -541,13 +546,12 @@ plotCircle:
 	lda r2L
         ora r2H
 	bne @0
-        pla
-@1:	plp
+@1:     pla
+	plp
         rts
-@0:     pla      ; check if all quadrants are being omitted
+@0:     lda r3L
         cmp #$0F
 	beq @1
-        pha
 
         MoveW r2, r11    ; int x = -r
 	NegateW r11
@@ -556,6 +560,26 @@ plotCircle:
         LshiftW r14      ; radius times two
 	LoadW 2, r13     ; set r13 as $0002
         SubW r14, r13    ; r13 = r13 - r14
+        MoveW r0, r6
+	MoveW r1, r7
+        MoveW r2, r8
+	
+@2:     MoveW r6, r0     ; xm - x
+        SubW  r11, r0
+	MoveW r7, r1     ; ym + y
+        AddW  r12, r1
+	pla              ; fetch but keep the accumulator on stack
+        pha
+	jsr plotPixel
+
+;---------------------------------------------------------------
+; plotPixel
+;
+; Pass:   r0  x
+;         r1  y
+;         .A colour
+;---------------------------------------------------------------
+plotPixel:
 	
 ;---------------------------------------------------------------
 ; GRAPH_draw_image
