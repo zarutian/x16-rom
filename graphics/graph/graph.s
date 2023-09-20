@@ -553,6 +553,12 @@ plotCircle:
         cmp #$0F
 	beq @1
 
+        pla              ; save the saved registers
+	PushW r6
+        PushW r7
+	PushW r8
+        pha
+
         MoveW r2, r11    ; int x = -r
 	NegateW r11
         ZeroW r12        ; int y = 0
@@ -564,11 +570,23 @@ plotCircle:
 	MoveW r1, r7
         MoveW r2, r8
 	
-@2:     MoveW r6, r0     ; xm - x
+@2:     lda r3L          ; 1st quadrant
+        bbs0 @3
+        MoveW r6, r0     ; xm - x
         SubW  r11, r0
 	MoveW r7, r1     ; ym + y
         AddW  r12, r1
 	pla              ; fetch but keep the accumulator on stack
+        pha
+	jsr plotPixel
+ 
+@3:     lda r3L          ; 2nd quadrant
+        bbs1 @4
+	MoveW r6, r0     ; xm - y
+        SubW  r12, r0
+	MoveW r7, r1     ; ym - y
+        SubW  r12, r1
+	pla
         pha
 	jsr plotPixel
 
