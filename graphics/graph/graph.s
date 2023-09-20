@@ -627,7 +627,15 @@ plotCircle:
 	IncrW r14        ; +1
         AddW r14, r13    ; add the result into err
 
-@9:     
+@9:     ZeroW r14
+        CmpW r11, r14
+	bcc @2
+
+        pla
+	PullW r7
+        PullW r6
+	plp
+        rts
 
 ;---------------------------------------------------------------
 ; plotPixel
@@ -637,6 +645,8 @@ plotCircle:
 ;         .A colour
 ;---------------------------------------------------------------
 plotPixel:
+	jsr FB_cursor_position
+        jmp FB_set_pixel        ; tail call
 	
 ;---------------------------------------------------------------
 ; GRAPH_draw_image
