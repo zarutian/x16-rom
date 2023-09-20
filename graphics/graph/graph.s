@@ -604,6 +604,9 @@ plotCircle:
 	bne @A
                          ; fill on the inside, that is, from plotted
 			 ; pixel to xm, in that y line
+        SubW r14, r0     ; count = xm - x
+	         !!!MERKILL!!!
+	LoadW r1, 1      ; step = 1
         @A:
 	                 ; fill on the outside
 		         ; to be implemented
