@@ -567,12 +567,14 @@ plotCircle:
 @0:     lda r3L
         cmp #$0F
 	beq @1
-
-        pla              ; save the saved registers
-	plp
-	PushW r6
+ 
+	PushW r6         ; save the saved registers
         PushW r7
-	php
+	phx              ; copy status and accumulator to top of stack
+        tsx
+	lda $0107, x     ; status
+        pha
+	lda $0107, x     ; accumulator
         pha
 
         MoveW r2, r11    ; int x = -r
@@ -700,9 +702,10 @@ plotCircle:
 @9:     CmpWI r11, 0
 	bcc @2
 
-        pla
+        plx
 	PopW r7
         PopW r6
+	pla
 	plp
         rts
 
