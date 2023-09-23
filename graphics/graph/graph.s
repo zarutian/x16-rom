@@ -646,6 +646,7 @@ plotCircle:
         bra @4
         @B:
 	                 ; fill on the outside
+		  	 ; to be implemented
  
 @4:     lda r3L          ; 3rd quadrant
         bbs2 @5
@@ -662,6 +663,22 @@ plotCircle:
 	pha
         bcc @5           ; branch if carry clear because no fill is
 	                 ; requested
+	                 ; r0 and r1 should still have the x,y coords
+	bne @C
+                         ; fill on the inside, that is, from xm to
+			 ; the plotted pixel, in that y line
+        MoveW r0, r14
+	MoveW r11, r0
+        jsr FB_cursor_position
+        DecW r0
+        SubW r11, r0     ; count = xm - x
+	LoadW r1, 1      ; step = 1
+        lda col2
+	jsr FB_fill_pixels
+        bra @5
+        @C:
+	                 ; fill on the outside
+		  	 ; to be implemented
  
 @5:     lda r3L          ; 4th quadrant
         bbs3 @6
@@ -677,6 +694,19 @@ plotCircle:
 	pha
         bcc @6           ; branch if carry clear because no fill is
 	                 ; requested
+		         ; r0 and r1 should still have the x,y coords
+	bne @C
+                         ; fill on the inside, that is, from next of 
+			 ; plotted pixel to xm, in that y line
+        IncW r0
+        SubW r11, r0     ; count = xm - x
+	LoadW r1, 1      ; step = 1
+        lda col2
+	jsr FB_fill_pixels
+        bra @6
+        @C:
+	                 ; fill on the outside
+		         ; to be implemented
 
 @6:     MoveW r13, r2    ; r = err
                          ; if (r <= y)
