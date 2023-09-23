@@ -442,7 +442,7 @@ VerticalLine:
 ;            r1   y
 ;            r2   width
 ;            r3   height
-;            r4   corner radius [in work]
+;            r4   corner radius [still in work]
 ;            c    1: fill
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
@@ -531,7 +531,7 @@ GRAPH_draw_rect:
 ;
 
 ;---------------------------------------------------------------
-; plotCircle
+; draw_circle
 ;
 ; Pass:      r0   middle_x
 ;            r1   middle_y
@@ -555,7 +555,7 @@ GRAPH_draw_rect:
 ;            r14
 ; (see http://members.chello.at/~easyfilter/bresenham.html#circle )
 ;---------------------------------------------------------------
-plotCircle:
+draw_circle:
         php      ; check for zero radius
 	pha
 	lda r2L
