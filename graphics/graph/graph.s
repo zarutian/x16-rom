@@ -458,22 +458,25 @@ GRAPH_draw_rect:
 	beq @4
 	plp
 
-	bcc @3       ; skip fill if Carry is zero
+	bcc @3                  ; skip fill if Carry is zero
 
 ; fill
-	PushW r1
-	PushW r3
+	PushW r1                ; save y coord
+	PushW r3                ; save height
+
+ 
 	jsr FB_cursor_position  ; set upper left corner as the
                                 ; starting point
 
-@1:	PushW r0                ; fill a y line of the rect
-	PushW r1
-	MoveW r2, r0
-	LoadW r1, 0
-	lda col2
-	jsr FB_fill_pixels
-	PopW r1
-	PopW r0
+                                ; fill a y line of the rect
+@1:	PushW r0                ; save x coord
+	PushW r1                ; save y coord
+	MoveW r2, r0            ; put width into r0
+	LoadW r1, 0             ; zero out r1
+	lda col2                ; load acvumulator with 2ndary colour
+	jsr FB_fill_pixels      ; draw that many pixels in that colour
+	PopW r1                 ; restore y coord
+	PopW r0                 ; restore x coord
 
 	jsr FB_cursor_next_line
 
@@ -485,8 +488,8 @@ GRAPH_draw_rect:
 	ora r3H
 	bne @1                 ; if height is none zero, iterate
 
-	PopW r3
-	PopW r1
+	PopW r3                ; restore height
+	PopW r1                ; restore y coord
 
 ; frame
 @3:
