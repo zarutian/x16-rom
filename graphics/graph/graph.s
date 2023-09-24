@@ -464,8 +464,21 @@ GRAPH_draw_rect:
 	PushW r1                ; save y coord
 	PushW r3                ; save height
 
+        lda r4L                 ; check if radius is zero
+	bne :+
+        lda r4H
+	bne :+
+        bra @4
+:       phx                     ; radius is not zero
+        ldx #3
+	AddW r4, r1             ; increment y coord radius amount
+        PushW r4                ; save radius
+        LshiftW r4              ; double the radius
+        SubW r4, r3             ; decrement height that amount
+	PopW r4
+@5:     dex
  
-	jsr FB_cursor_position  ; set upper left corner as the
+@4:     jsr FB_cursor_position  ; set upper left corner as the
                                 ; starting point
 
                                 ; fill a y line of the rect
@@ -487,6 +500,12 @@ GRAPH_draw_rect:
 	lda r3L
 	ora r3H
 	bne @1                 ; if height is none zero, iterate
+
+        ; check again if radius is zero
+	; if so
+        ;   then if .x is 2 then repeat with header rectpart
+	;   then if .x is 1 then repeat with footer rectpart
+        ;   then if .x is 0 the restore .x
 
 	PopW r3                ; restore height
 	PopW r1                ; restore y coord
