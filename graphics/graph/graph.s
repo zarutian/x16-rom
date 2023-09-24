@@ -499,14 +499,32 @@ GRAPH_draw_rect:
 @2:	dec r3L
 	lda r3L
 	ora r3H
-	bne @1                 ; if height is none zero, iterate
+	bne @1                 ; if height is non-zero, iterate
 
-        ; check again if radius is zero
-	; if so
-        ;   then if .x is 2 then repeat with header rectpart
+        lda r4L                ; check again if radius is non-zero
+	bne :+
+        lda r4H
+	bne :+
+        bra @6
+:                              ; if so
+        cpx #2
+	bne :+
+        PushW r0               ;   then if .x is 2 then repeat with
+	AddW  r4, r0           ;   header rectpart
+        PushW r2               ; save width
+	PushW r4               ; save radius
+        LshiftW r4             ; double the radius
+	SubW r4, r2            ; and subtract that from the width
+        PopW r4                ; restore radius
+:       cpx #1
+        bne :+
 	;   then if .x is 1 then repeat with footer rectpart
-        ;   then if .x is 0 the restore .x
-
+:       cpx #0
+        bne @6
+	PopW r2                ;   then if .x is 0 the restore width
+	PopW r0                ; restore x coord
+        plx                    ; restore .x register
+@6:
 	PopW r3                ; restore height
 	PopW r1                ; restore y coord
 
