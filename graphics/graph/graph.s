@@ -446,7 +446,7 @@ VerticalLine:
 ;            c    1: fill
 ;---------------------------------------------------------------
 GRAPH_draw_rect:
-; check for empty
+; check for empty rectangles (zero width and/or height)
 	php
 	lda r2L
 	ora r2H
@@ -458,14 +458,15 @@ GRAPH_draw_rect:
 	beq @4
 	plp
 
-	bcc @3
+	bcc @3       ; skip fill if Carry is zero
 
 ; fill
 	PushW r1
 	PushW r3
-	jsr FB_cursor_position
+	jsr FB_cursor_position  ; set upper left corner as the
+                                ; starting point
 
-@1:	PushW r0
+@1:	PushW r0                ; fill a y line of the rect
 	PushW r1
 	MoveW r2, r0
 	LoadW r1, 0
@@ -476,13 +477,13 @@ GRAPH_draw_rect:
 
 	jsr FB_cursor_next_line
 
-	lda r3L
+	lda r3L                ; decrement height
 	bne @2
 	dec r3H
 @2:	dec r3L
 	lda r3L
 	ora r3H
-	bne @1
+	bne @1                 ; if height is none zero, iterate
 
 	PopW r3
 	PopW r1
