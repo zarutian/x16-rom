@@ -500,6 +500,7 @@ GRAPH_draw_rect:
 	PopW r4                 ; restore radius
         jsr fill_rect
 
+        MoveW r1, r11
         PopW r3                 ; restore height
 	PopW r2                 ; restore width
         PopW r1                 ; restore y coord
@@ -508,6 +509,19 @@ GRAPH_draw_rect:
         PushW r3
         
 	                        ; footer rectpart
+	AddW r4, r0             ; offset x coord by radius
+        PushW r4                ; save radius
+        LshiftWI r4, 1          ; double the radius
+	SubW r4, r2             ; decrement width that amount
+        PopW r4                 ; restore radius
+	MoveW r11, r1           ; set y coord to the bottom of main
+	MoveW r4, r3            ; set height to radius
+        jsr fill_rect
+                                ; done filling
+        PopW r3
+	PopW r2
+        PopW r1
+        PopW r0
 
 ; frame
 @3:
