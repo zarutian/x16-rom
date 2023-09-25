@@ -486,7 +486,7 @@ GRAPH_draw_rect:
 	PushW r1                ; save y coord
 	MoveW r2, r0            ; put width into r0
 	LoadW r1, 0             ; zero out r1
-	lda col2                ; load acvumulator with 2ndary colour
+	lda col2                ; load accumulator with 2ndary colour
 	jsr FB_fill_pixels      ; draw that many pixels in that colour
 	PopW r1                 ; restore y coord
 	PopW r0                 ; restore x coord
@@ -557,6 +557,38 @@ GRAPH_draw_rect:
 	PopW r3
 	PopW r2
 	rts
+;---------------------------------------------------------------
+; fill_rect
+; Pass:     r0   x
+;           r1   y
+;           r2   width
+;           r3   height
+;---------------------------------------------------------------
+fill_rect:
+        PushW r1                ; save y coord
+	PushW r3                ; save height
+        jsr FB_cursor_position  ; set upper left corner as the
+                                ; starting point
+                                ; fill a y line of the rect
+@1:	PushW r0                ; save x coord
+	PushW r1                ; save y coord
+	MoveW r2, r0            ; put width into r0
+	LoadW r1, 0             ; zero out r1
+	lda col2                ; load accumulator with 2ndary colour
+	jsr FB_fill_pixels      ; draw that many pixels in that colour
+	PopW r1                 ; restore y coord
+	PopW r0                 ; restore x coord
+        jsr FB_cursor_next_line ; move down a y line and go to start x
+	lda r3L                 ; decrement height
+	bne @2
+	dec r3H
+@2:	dec r3L
+	lda r3L
+	ora r3H
+	bne @1                  ; if height is non-zero, iterate
+        PopW r3                 ; restore height
+	PopW r1                 ; restore y coord
+        rts
 
 ; should probably be in mac.inc
 .macro InvertB location
