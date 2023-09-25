@@ -469,32 +469,45 @@ GRAPH_draw_rect:
         jsr fill_rect           ; it is so, so just fill the rect
         bra @3
 @2:
-        ldx #3
-	AddW r4, r1             ; increment y coord radius amount
+        PushW r0                ; save x coord
+	PushW r1                ; save y coord
+        PushW r2                ; save width
+	PushW r3                ; save height
+
+                                ; header rectpart
+        AddW  r4, r0            ; offset x by radius
+	PushW r4                ; save radius
+        LshiftWI r4, 1          ; double the radius
+	SubW r4, r2             ; decrement width that amount
+        PopW r4                 ; restore radius
+	MoveW r4, r3            ; set height to radius
+	jsr fill_rect           ; fill in the header
+ 
+        PopW r3                 ; restore height
+	PopW r2                 ; restore width
+        PopW r1                 ; restore y coord
+	PopW r0                 ; restore x coord
+        PushW r0                ; and save it all again
+	PushW r1
+        PushW r2
+	PushW r3
+
+                                ; main rectpart
+	AddW r4, r1             ; offset y coord by radius 
         PushW r4                ; save radius
         LshiftW r4              ; double the radius
         SubW r4, r3             ; decrement height that amount
-	PopW r4
+	PopW r4                 ; restore radius
+        jsr fill_rect
 
- 
-
-
-        lda r4L                ; check again if radius is non-zero
-	bne :+
-        lda r4H
-	bne :+
-        bra @6
-:                              ; if so
-        cpx #2
-	bne :+
-        PushW r0               ;   then if .x is 2 then repeat with
-	AddW  r4, r0           ;   header rectpart
-        PushW r2               ; save width
-	PushW r4               ; save radius
-        LshiftW r4             ; double the radius
-	SubW r4, r2            ; and subtract that from the width
-        PopW r4                ; restore radius
-	;   then if .x is 1 then repeat with footer rectpart
+        PopW r3                 ; restore height
+	PopW r2                 ; restore width
+        PopW r1                 ; restore y coord
+	PushW r1
+        PushW r2
+        PushW r3
+        
+	                        ; footer rectpart
 
 ; frame
 @3:
