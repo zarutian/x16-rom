@@ -525,6 +525,20 @@ GRAPH_draw_rect:
 
 ; frame
 @3:
+        lda r4L                 ; check if radius is zero
+	bne :+
+        lda r4H
+	bne :+
+        bra @4
+:       ; draw upper left corner
+        ; draw upper right corner
+	; draw lower left corner
+        ; draw lower right corner
+	; draw top horz line
+        ; draw bottom horz line
+	; draw left vert line
+        ; draw right vert line
+@4:
 	PushW r2
 	PushW r3
 	AddW r0, r2
