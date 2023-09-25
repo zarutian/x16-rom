@@ -530,7 +530,13 @@ GRAPH_draw_rect:
         lda r4H
 	bne :+
         bra @4
-:       ; draw upper left corner
+:       plp
+        php !!!MERKILL!!!
+	PushW r0
+        PushW r1
+	PushW r2
+        PushW r3
+        ; draw upper left corner
         ; draw upper right corner
 	; draw lower left corner
         ; draw lower right corner
@@ -538,6 +544,7 @@ GRAPH_draw_rect:
         ; draw bottom horz line
 	; draw left vert line
         ; draw right vert line
+	rts
 @4:
 	PushW r2
 	PushW r3
