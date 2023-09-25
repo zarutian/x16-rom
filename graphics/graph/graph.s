@@ -451,55 +451,33 @@ GRAPH_draw_rect:
 	lda r2L
 	ora r2H
 	bne @0
-@4:	plp
+@1:	plp
 	rts
 @0:	lda r3L
 	ora r3H
-	beq @4
+	beq @1
 	plp
 
 	bcc @3                  ; skip fill if Carry is zero
 
 ; fill
-	PushW r1                ; save y coord
-	PushW r3                ; save height
 
         lda r4L                 ; check if radius is zero
-	bne :+
+	bne @2
         lda r4H
-	bne :+
-        bra @4
-:       phx                     ; radius is not zero
+	bne @2
+        jsr fill_rect           ; it is so, so just fill the rect
+        bra @3
+@2:
         ldx #3
 	AddW r4, r1             ; increment y coord radius amount
         PushW r4                ; save radius
         LshiftW r4              ; double the radius
         SubW r4, r3             ; decrement height that amount
 	PopW r4
-@5:     dex
+
  
-@4:     jsr FB_cursor_position  ; set upper left corner as the
-                                ; starting point
 
-                                ; fill a y line of the rect
-@1:	PushW r0                ; save x coord
-	PushW r1                ; save y coord
-	MoveW r2, r0            ; put width into r0
-	LoadW r1, 0             ; zero out r1
-	lda col2                ; load accumulator with 2ndary colour
-	jsr FB_fill_pixels      ; draw that many pixels in that colour
-	PopW r1                 ; restore y coord
-	PopW r0                 ; restore x coord
-
-	jsr FB_cursor_next_line
-
-	lda r3L                ; decrement height
-	bne @2
-	dec r3H
-@2:	dec r3L
-	lda r3L
-	ora r3H
-	bne @1                 ; if height is non-zero, iterate
 
         lda r4L                ; check again if radius is non-zero
 	bne :+
@@ -516,17 +494,7 @@ GRAPH_draw_rect:
         LshiftW r4             ; double the radius
 	SubW r4, r2            ; and subtract that from the width
         PopW r4                ; restore radius
-:       cpx #1
-        bne :+
 	;   then if .x is 1 then repeat with footer rectpart
-:       cpx #0
-        bne @6
-	PopW r2                ;   then if .x is 0 the restore width
-	PopW r0                ; restore x coord
-        plx                    ; restore .x register
-@6:
-	PopW r3                ; restore height
-	PopW r1                ; restore y coord
 
 ; frame
 @3:
