@@ -161,13 +161,21 @@ iniend:
 	lda #%01111110
 	sta VERA_CTRL
 	lda $9f29
-	stz VERA_CTRL
 	cmp #'V'
-	beq :+
+	bne @notok
+	lda $9f2a
+	bne @ok ; assume major version > 0 is fine
+	lda $9f2b
+	cmp #3
+	bcs @ok ; assume version 0.3.x or higher is okay
+@notok:
+	stz VERA_CTRL
 	lda #<updatevera
 	ldy #>updatevera
 	jsr strout
-:	plp
+@ok:
+	stz VERA_CTRL
+	plp
 
 
 	rts
@@ -233,15 +241,15 @@ l3msg20:
 
 l4msg40:
 	.byte "K HIGH RAM"
-.ifdef PRERELEASE_VERSION
+.ifdef RELEASE_VERSION
 	.byte " - ROM VER R"
-.if PRERELEASE_VERSION >= 100
-	.byte (PRERELEASE_VERSION / 100) + '0'
+.if RELEASE_VERSION >= 100
+	.byte (RELEASE_VERSION / 100) + '0'
 .endif
-.if PRERELEASE_VERSION >= 10
-	.byte ((PRERELEASE_VERSION / 10) .mod 10) + '0'
+.if RELEASE_VERSION >= 10
+	.byte ((RELEASE_VERSION / 10) .mod 10) + '0'
 .endif
-	.byte (PRERELEASE_VERSION .mod 10) + '0'
+	.byte (RELEASE_VERSION .mod 10) + '0'
 .else
 	.byte " - GIT "
 	.incbin "../build/signature.bin"
@@ -251,15 +259,15 @@ l4msg40:
 l4msg20:
 	.byte "K HI RAM",0
 l5msg20:
-.ifdef PRERELEASE_VERSION
+.ifdef RELEASE_VERSION
 	.byte "ROM VER R"
-.if PRERELEASE_VERSION >= 100
-	.byte (PRERELEASE_VERSION / 100) + '0'
+.if RELEASE_VERSION >= 100
+	.byte (RELEASE_VERSION / 100) + '0'
 .endif
-.if PRERELEASE_VERSION >= 10
-	.byte ((PRERELEASE_VERSION / 10) .mod 10) + '0'
+.if RELEASE_VERSION >= 10
+	.byte ((RELEASE_VERSION / 10) .mod 10) + '0'
 .endif
-	.byte (PRERELEASE_VERSION .mod 10) + '0'
+	.byte (RELEASE_VERSION .mod 10) + '0'
 .else
 	.incbin "../build/signature.bin"
 .endif
@@ -273,6 +281,9 @@ l7msg20:
 	.byte "BYTES FREE",0
 
 updatevera:
-	.byte 13,"IMPORATANT! VERA FIRMWARE MUST BE",13
-	.byte "UPDATED TO VERSION 0.1.1 OR LATER.",13
-	.byte "LATER ROMS WILL NOT BOOT WITH YOUR VERA VERSION.",13,0
+	.byte 13,"IMPORTANT! YOUR VERA'S FIRMWARE IS",13
+	.byte "DEPRECATED. PLEASE UPDATE TO VERSION",13
+	.byte "0.3.1 OR LATER.",13
+	.byte "LATER ROMS MAY NOT BOOT WITH THE",13
+	.byte "CURRENT VERA VERSION.",13
+	.byte 13,"USE THE HELP COMMAND FOR FIRMWARE INFO",13,0

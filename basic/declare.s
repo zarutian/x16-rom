@@ -25,7 +25,7 @@ linnum	.res 2           ;$14 location to store line number before buf
                          ;    data pointer always starts on a
                          ;    comma or terminator.
 
-poker	=linnum          ;$14 set up location used by poke
+poker	:=linnum         ;$14 set up location used by poke
                          ;    temporary for input and read code
 
 tempst	.res 9           ;$19 storage for numtmp temp descriptors
@@ -43,7 +43,7 @@ forpnt	.res 2           ;$49 a variable's pointer for "for" loops
                          ;    and "let" statements
 lstpnt	=forpnt          ;$49 pntr to list string
 andmsk	=forpnt          ;$49 the mask used by wait for anding
-eormsk	=forpnt+1        ;$4A the mask for eoring in wait
+eormsk	:=forpnt+1        ;$4A the mask for eoring in wait
 
 ; CHRGET
 chrget	.res 6           ;$73

@@ -4,11 +4,14 @@ SERIAL_SOURCE_BASE ?= CBM
 # for both also supported
 # * OPENROMS
 
+PRERELEASE_VERSION ?= "46"
+
 ifdef RELEASE_VERSION
 	VERSION_DEFINE="-DRELEASE_VERSION=$(RELEASE_VERSION)"
-endif
-ifdef PRERELEASE_VERSION
-	VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
+else
+	ifdef PRERELEASE_VERSION
+		VERSION_DEFINE="-DPRERELEASE_VERSION=$(PRERELEASE_VERSION)"
+	endif
 endif
 
 CC           = cc65
@@ -107,21 +110,23 @@ KEYMAP_SOURCES = \
 	keymap/keymap.s
 
 DOS_SOURCES = \
-	dos/fat32/fat32.s \
-	dos/fat32/mkfs.s \
-	dos/fat32/sdcard.s \
-	dos/fat32/text_input.s \
+	dos/declare.s \
 	dos/zeropage.s \
 	dos/jumptab.s \
 	dos/main.s \
-	dos/match.s \
 	dos/file.s \
 	dos/cmdch.s \
 	dos/dir.s \
 	dos/parser.s \
-	dos/functions.s
+	dos/functions.s \
+	dos/djsrfar.s
 
 FAT32_SOURCES = \
+	fat32/fat32.s \
+	fat32/mkfs.s \
+	fat32/sdcard.s \
+	fat32/text_input.s \
+	fat32/match.s \
 	fat32/main.s
 
 BASIC_SOURCES= \
@@ -174,12 +179,18 @@ UTIL_SOURCES= \
 
 BANNEX_SOURCES= \
 	kernsup/kernsup_bannex.s \
+	bannex/basic_far.s \
 	bannex/main.s \
 	bannex/renumber.s \
 	bannex/sleep_cont.s \
 	bannex/screen_default_color_from_nvram.s \
 	bannex/help.s \
-	bannex/splash.s
+	bannex/splash.s \
+	bannex/locate.s \
+	bannex/dos.s \
+	bannex/tile.s \
+	bannex/x16edit.s \
+	bannex/sprite.s
 
 GENERIC_DEPS = \
 	inc/kernal.inc \
@@ -200,20 +211,60 @@ KEYMAP_DEPS = \
 
 DOS_DEPS = \
 	$(GENERIC_DEPS) \
-	dos/fat32/fat32.inc \
-	dos/fat32/lib.inc \
-	dos/fat32/regs.inc \
-	dos/fat32/sdcard.inc \
-	dos/fat32/text_input.inc \
 	dos/functions.inc \
+	dos/macros.inc \
 	dos/vera.inc
 
 FAT32_DEPS = \
-	$(GENERIC_DEPS)
+	$(GENERIC_DEPS) \
+	fat32/lib.inc \
+	fat32/regs.inc \
+	fat32/sdcard.inc \
+	fat32/text_input.inc
 
 BASIC_DEPS= \
 	$(GENERIC_DEPS) \
+	basic/code1.s \
+	basic/code2.s \
+	basic/code3.s \
+	basic/code4.s \
+	basic/code5.s \
+	basic/code6.s \
+	basic/code7.s \
+	basic/code8.s \
+	basic/code9.s \
+	basic/code10.s \
+	basic/code11.s \
+	basic/code12.s \
+	basic/code13.s \
+	basic/code14.s \
+	basic/code15.s \
+	basic/code16.s \
+	basic/code17.s \
+	basic/code26.s \
+	basic/declare.s \
+	basic/graph.s \
+	basic/init.s \
+	basic/sound.s \
+	basic/tokens.s \
+	basic/token2.s \
+	basic/x16additions.s \
+	math/code18.s \
+	math/code19.s \
+	math/code20.s \
+	math/code21.s \
+	math/code22.s \
+	math/code23.s \
+	math/code24.s \
+	math/code25.s \
+	math/declare.s \
+	math/exports.s \
+	math/fadd.s \
+	math/fmult.s \
+	math/fsqr.s \
+	math/jumptab.s \
 	math/math.inc \
+	math/trig.s \
 	$(GIT_SIGNATURE)
 
 MONITOR_DEPS= \
@@ -224,13 +275,15 @@ CHARSET_DEPS= \
 	$(GENERIC_DEPS)
 
 AUDIO_DEPS= \
-	$(GENERIC_DEPS)
-
-UTIL_DEPS= \
-	$(GENERIC_DEPS)
+	$(GENERIC_DEPS)	math/math.s \
 
 BANNEX_DEPS= \
 	$(GENERIC_DEPS)
+
+X16EDIT_DEPS= \
+	$(GENERIC_DEPS) \
+	$(wildcard x16-edit/*.asm) \
+	$(wildcard x16-edit/*.inc)
 
 
 KERNAL_OBJS  = $(addprefix $(BUILD_DIR)/, $(KERNAL_SOURCES:.s=.o))
@@ -259,7 +312,8 @@ BANK_BINS = \
 	$(BUILD_DIR)/demo.bin \
 	$(BUILD_DIR)/audio.bin \
 	$(BUILD_DIR)/util.bin \
-	$(BUILD_DIR)/bannex.bin
+	$(BUILD_DIR)/bannex.bin \
+	$(BUILD_DIR)/x16edit-rom.bin
 
 ROM_LABELS=$(BUILD_DIR)/rom_labels.h
 ROM_LST=$(BUILD_DIR)/rom_lst.h
@@ -269,6 +323,13 @@ all: $(BUILD_DIR)/rom.bin $(ROM_LABELS) $(ROM_LST)
 
 $(BUILD_DIR)/rom.bin: $(BANK_BINS)
 	cat $(BANK_BINS) > $@
+
+x16edit_update:
+	@rm -rf x16edittmp
+	git clone https://github.com/stefan-b-jakobsson/x16-edit.git x16edittmp
+	rsync -av --delete --delete-after --exclude=/customrom.bin x16edittmp/ x16-edit/
+	(cd x16-edit && git rev-parse HEAD > .git-commit && rm -rf .git)
+	rm -rf x16edittmp
 
 clean:
 	rm -f $(GIT_SIGNATURE)
@@ -313,7 +374,9 @@ $(BUILD_DIR)/dos.bin: $(DOS_OBJS) $(DOS_DEPS) $(CFG_DIR)/dos-x16.cfg
 # Bank 3 : FAT32
 $(BUILD_DIR)/fat32.bin: $(FAT32_OBJS) $(FAT32_DEPS) $(CFG_DIR)/fat32-x16.cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C $(CFG_DIR)/fat32-x16.cfg $(FAT32_OBJS) -o $@ -m $(BUILD_DIR)/fat32.map -Ln $(BUILD_DIR)/fat32.sym
+	$(LD) -C $(CFG_DIR)/fat32-x16.cfg $(FAT32_OBJS) -o $@ -m $(BUILD_DIR)/fat32.map -Ln $(BUILD_DIR)/fat32.sym \
+	`${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/dos.sym bank_save fat32_bufptr fat32_lfn_bufptr fat32_ptr fat32_ptr2 krn_ptr1` \
+	`${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/dos.sym fat32_dirent fat32_errno fat32_readonly fat32_size skip_mask`
 	./scripts/relist.py $(BUILD_DIR)/fat32.map $(BUILD_DIR)/fat32
 
 # Bank 4 : BASIC
@@ -325,7 +388,8 @@ $(BUILD_DIR)/basic.bin: $(GIT_SIGNATURE) $(BASIC_OBJS) $(BASIC_DEPS) $(CFG_DIR)/
 # Bank 5 : MONITOR
 $(BUILD_DIR)/monitor.bin: $(MONITOR_OBJS) $(MONITOR_DEPS) $(CFG_DIR)/monitor-x16.cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C $(CFG_DIR)/monitor-x16.cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.sym `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym mode`
+	$(LD) -C $(CFG_DIR)/monitor-x16.cfg $(MONITOR_OBJS) -o $@ -m $(BUILD_DIR)/monitor.map -Ln $(BUILD_DIR)/monitor.sym `${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym mode dbgbrk` \
+	`${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/basic.sym -p basic_ linnum tempst forpnt`
 	./scripts/relist.py $(BUILD_DIR)/monitor.map $(BUILD_DIR)/monitor
 
 # Bank 6 : CHARSET
@@ -363,9 +427,17 @@ $(BUILD_DIR)/util.bin: $(UTIL_OBJS) $(UTIL_DEPS) $(CFG_DIR)/util-x16.cfg
 # Bank C : BASIC Annex
 $(BUILD_DIR)/bannex.bin: $(BANNEX_OBJS) $(BANNEX_DEPS) $(CFG_DIR)/bannex-x16.cfg
 	@mkdir -p $$(dirname $@)
-	$(LD) -C $(CFG_DIR)/bannex-x16.cfg $(BANNEX_OBJS) -o $@ -m $(BUILD_DIR)/bannex.map -Ln $(BUILD_DIR)/bannex.sym
+	$(LD) -C $(CFG_DIR)/bannex-x16.cfg $(BANNEX_OBJS) -o $@ -m $(BUILD_DIR)/bannex.map -Ln $(BUILD_DIR)/bannex.sym \
+	`${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/basic.sym basic_fa chrgot crambank curlin eormsk fac facho facmo index index1 index2 poker rencur reninc rennew renold rentmp rentmp2 txtptr txttab valtyp vartab verck` \
+	`${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/basic.sym -p basic_ ayint chkcom cld10 crdo erexit error frefac frmadr frmevl frmnum getadr getbyt linprt nsnerr6` \
+	`${BUILD_DIR}/../../findsymbols ${BUILD_DIR}/kernal.sym mode`
 	./scripts/relist.py $(BUILD_DIR)/bannex.map $(BUILD_DIR)/bannex
 
+# Bank D-E: X16 Edit
+$(BUILD_DIR)/x16edit-rom.bin: $(X16EDIT_DEPS)
+	@mkdir -p $$(dirname $@)
+	(cd x16-edit && make clean rom)
+	cp x16-edit/build/x16edit-rom.bin $(BUILD_DIR)/x16edit-rom.bin
 
 $(BUILD_DIR)/rom_labels.h: $(BANK_BINS)
 	./scripts/symbolize.sh 0 build/x16/kernal.sym   > $@

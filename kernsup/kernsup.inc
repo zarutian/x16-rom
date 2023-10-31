@@ -1,9 +1,9 @@
 .byte 0,0,0                       ; $FEA8
 .byte 0,0,0                       ; $FEAB
 .byte 0,0,0                       ; $FEAE
-.byte 0,0,0                       ; $FEB1
-.byte 0,0,0                       ; $FEB4
-.byte 0,0,0                       ; $FEB7
+bridge mciout                     ; $FEB1
+bridge i2c_batch_read             ; $FEB4
+bridge i2c_batch_write            ; $FEB7
 bridge bsave                      ; $FEBA
 
 bridge kbdbuf_peek                ; $FEBD

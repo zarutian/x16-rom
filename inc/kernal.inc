@@ -132,9 +132,12 @@ entropy_get                  = $fecf
 
 i2c_read_byte                = $fec6
 i2c_write_byte               = $fec9
+i2c_batch_read               = $feb4
+i2c_batch_write              = $feb7
 
 kbdbuf_peek                  = $febd
 kbdbuf_get_modifiers         = $fec0
 kbdbuf_put                   = $fec3
 
 bsave                        = $feba
+mciout                       = $feb1

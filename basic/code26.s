@@ -114,8 +114,6 @@ nsnerr6	lda verck   ;fetch the device (fa) that was used
 	lda #$0d
 	jsr bsout
 	pla             ;this will have the fa used for the save
-	sec
-	php
 	jmp ptstat3     ;part of the `dos` routine
 :	pla
 	rts
@@ -174,6 +172,8 @@ cld55	jmp error
 ;
 cld60	stx sxreg   ; save [B]LOAD addr so BASIC can inspect
 	sty syreg
+	lda ram_bank
+	sta crambank
 	lda eormsk
 	bne cld20
 	lda txtptr+1
@@ -189,9 +189,11 @@ cld65	stx vartab
 ;
 ;program load
 ;
-cld70	jsr stxtpt
+cld70	stx vartab
+	sty vartab+1    ;end load address
+	jsr stxtpt
 	jsr lnkprg
-	jmp fload
+	jmp cleart
 
 copen	jsr paoc        ;parse statement
 	jsr $ffc0       ;open it

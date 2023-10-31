@@ -22,7 +22,8 @@ ZPBASIC:  start = $00D4, size = $002B; # BASIC (last byte used: $FE)
 
 /* $0200-$02FF: always-available variables and RAM code */
 KVAR:     start = $0200, size = $00BB; # KERNAL
-/*        start = $02BB, size = $0006; # reserved for KERNAL growth */
+/*        start = $02BB, size = $0005; # reserved for KERNAL growth */
+I2CMUTEX: start = $02C0, size = $0001; # I2C MUTEX FLAG
 GRAPHVAR: start = $02C1, size = $0003; # GRAPH BANK VARS
 KERNRAM:  start = $02C4, size = $0020; # KERNAL RAM code
 GDRVVEC:  start = $02E4, size = $001C; # framebuffer driver vectors
@@ -44,5 +45,6 @@ VECB0:    start = $AC00, size = $0020; # for misc vectors, stable addresses
 BVARSB0:  start = $AD00, size = $00C0; # BASIC expansion variables, few used
 AUDIOBSS: start = $ADC0, size = $0040; # audio bank scratch space and misc state
 BAUDIO:   start = $AE00, size = $0100; # YM2151 shadow for audio routines
-DOSDAT:   start = $B000, size = $0F00; # there is some space free here, too
+DOSDAT:   start = $B000, size = $0500; # there is some space free here
+F32DAT:   start = $B500, size = $0A00; # there is some space free here, too
 USERPARM: start = $BF00, size = $0100; # Reserved param passing area for user progs

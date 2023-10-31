@@ -120,6 +120,11 @@ reslst3
 	.byt "HEL", 'P' + $80
 	.byt "BANNE", 'R' + $80
 	.byt "EXE", 'C' + $80
+	.byt "TIL", 'E' + $80
+	.byt "EDI", 'T' + $80
+	.byt "SPRIT", 'E' + $80
+	.byt "SPRME", 'M' + $80
+	.byt "MOVSP", 'R' + $80
 
 	; add new statements before this line
 
