@@ -530,12 +530,12 @@ GRAPH_draw_rect:
         lda r4H
 	bne :+
         bra @4
-:       plp
-        php !!!MERKILL!!!
-	PushW r0
-        PushW r1
-	PushW r2
-        PushW r3
+:       plp                     ; refetch STATUS of the stack
+        php                     ;
+	PushW r0                ; save x
+        PushW r1                ; save y
+	PushW r2                ; save width
+        PushW r3                ; save height
         ; draw upper left corner
         ; draw upper right corner
 	; draw lower left corner
@@ -544,6 +544,11 @@ GRAPH_draw_rect:
         ; draw bottom horz line
 	; draw left vert line
         ; draw right vert line
+	PopW r3                 ; restore height
+        PopW r2                 ; restore width
+	PopW r1                 ; restore y
+        PopW r0                 ; restore x
+	plp                     ; restore STATUS
 	rts
 @4:
 	PushW r2
@@ -702,7 +707,9 @@ draw_circle:
 	jsr FB_fill_pixels
         bra @3
         @A:
-	                 ; fill on the outside
+	                 ; fill on the outside, that is, from
+		         ; xm-radius to next of plotted pixel,
+	                 ; in that y line
 		         ; to be implemented
  
 @3:     lda r3L          ; 2nd quadrant
@@ -734,7 +741,8 @@ draw_circle:
 	jsr FB_fill_pixels
         bra @4
         @B:
-	                 ; fill on the outside
+	                 ; fill on the outside, that is, from next of
+		         ; plotted pixel to xm+radius in that y line
 		  	 ; to be implemented
  
 @4:     lda r3L          ; 3rd quadrant
@@ -766,7 +774,9 @@ draw_circle:
 	jsr FB_fill_pixels
         bra @5
         @C:
-	                 ; fill on the outside
+	                 ; fill on the outside, that is, from next of
+		         ; the plotted pixel to xm+radius, in that
+	                 ; y line
 		  	 ; to be implemented
  
 @5:     lda r3L          ; 4th quadrant
@@ -794,7 +804,8 @@ draw_circle:
 	jsr FB_fill_pixels
         bra @6
         @C:
-	                 ; fill on the outside
+	                 ; fill on the outside, that is from xm-radius
+		         ; to next of plotted pixel, in that y line
 		         ; to be implemented
 
 @6:     MoveW r13, r2    ; r = err
