@@ -617,9 +617,12 @@ fill_rect:
         eor #$FF
 	sta location
 .end
-.macro NegateW location
+.macro InvertW location
         InvertB location+0
 	InvertB location+1
+.end
+.macro NegateW location
+        InvertW location
         AddVW 1, location
 .end
 ;
@@ -711,6 +714,12 @@ draw_circle:
 		         ; xm-radius to next of plotted pixel,
 	                 ; in that y line
 		         ; to be implemented
+	
+                         ; count = x - (xm - radius)
+	LoadW r1, 1      ; step = 1
+	lda col2
+	jsr FB_fill_pixels
+        ; bra @3
  
 @3:     lda r3L          ; 2nd quadrant
         bbs1 @4
