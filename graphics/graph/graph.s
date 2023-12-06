@@ -757,7 +757,7 @@ draw_circle:
 	MoveW r11, r0
         jsr FB_cursor_position
         DecW r0
-        SubW r11, r0     ; count = xm - x
+        SubWr r11, r0     ; count = xm - x
 	LoadW r1, 1      ; step = 1
         lda col2
 	jsr FB_fill_pixels
@@ -820,7 +820,7 @@ draw_circle:
                          ; fill on the inside, that is, from next of 
 			 ; plotted pixel to xm, in that y line
         IncW r0
-        SubW r11, r0     ; count = xm - x
+        SubWr r11, r0    ; count = xm - x
 	LoadW r1, 1      ; step = 1
         lda col2
 	jsr FB_fill_pixels
