@@ -616,15 +616,28 @@ fill_rect:
         lda location
         eor #$FF
 	sta location
-.end
+.endmacro
 .macro InvertW location
         InvertB location+0
 	InvertB location+1
-.end
+.endmacro
 .macro NegateW location
         InvertW location
         AddVW 1, location
-.end
+.endmacro
+.macro SubBr source, dest
+        ; SubBr  r stands for reversed 
+	; subtract destination from source then store the result at destination
+        lda source
+	sub dest
+        sta dest
+.endmacro
+.macro SubWr source, dest
+        SubBr source+0, dest+0
+	lda source+1
+	sbc dest+1
+	sta dest+1
+.endmacro
 ;
 
 ;---------------------------------------------------------------
@@ -704,7 +717,7 @@ draw_circle:
                          ; fill on the inside, that is, from next of 
 			 ; plotted pixel to xm, in that y line
         IncW r0
-        SubW r11, r0     ; count = xm - x
+        SubWr r11, r0    ; count = xm - x
 	LoadW r1, 1      ; step = 1
         lda col2
 	jsr FB_fill_pixels
