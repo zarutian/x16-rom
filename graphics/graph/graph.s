@@ -726,13 +726,15 @@ draw_circle:
 	                 ; fill on the outside, that is, from
 		         ; xm-radius to next of plotted pixel,
 	                 ; in that y line
-		         ; to be implemented
-	
-                         ; count = x - (xm - radius)
+	MoveW r0, r11
+        MoveW r6, r0
+	SubW  r2, r0     ; tempx = xm - radius
+        jsr FB_cursor_position
+        SubW  r0, r11    ; count = x - (xm - radius)
 	LoadW r1, 1      ; step = 1
 	lda col2
 	jsr FB_fill_pixels
-        ; bra @3
+        ; bra @3         ; fallthrough
  
 @3:     lda r3L          ; 2nd quadrant
         bbs1 @4
@@ -757,7 +759,7 @@ draw_circle:
 	MoveW r11, r0
         jsr FB_cursor_position
         DecW r0
-        SubWr r11, r0     ; count = xm - x
+        SubW r11, r0     ; count = xm - x
 	LoadW r1, 1      ; step = 1
         lda col2
 	jsr FB_fill_pixels
