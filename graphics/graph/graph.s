@@ -818,7 +818,7 @@ draw_circle:
         bcc @6           ; branch if carry clear because no fill is
 	                 ; requested
 		         ; r0 and r1 should still have the x,y coords
-	bne @C
+	bne @D
                          ; fill on the inside, that is, from next of 
 			 ; plotted pixel to xm, in that y line
         IncW r0
@@ -827,10 +827,19 @@ draw_circle:
         lda col2
 	jsr FB_fill_pixels
         bra @6
-        @C:
+        @D:
 	                 ; fill on the outside, that is from xm-radius
 		         ; to next of plotted pixel, in that y line
 		         ; to be implemented
+	MoveW r0, r11
+        MoveW r6, r0
+	SubW  r2, r0     ; tempx = xm - radius
+        jsr FB_cursor_position
+        SubW  r0, r11    ; count = x - (xm - radius)
+	LoadW r1, 1      ; step = 1
+	lda col2
+	jsr FB_fill_pixels
+        ; bra @6         ; fallthrough
 
 @6:     MoveW r13, r2    ; r = err
                          ; if (r <= y)
