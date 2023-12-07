@@ -537,6 +537,13 @@ GRAPH_draw_rect:
 	PushW r2                ; save width
         PushW r3                ; save height
         ; draw upper left corner
+	MoveW r4, r2            ; move radus into r2
+        AddW  r2, r0            ; x += radius
+	AddW  r2, r1            ; y += radius
+        LoadW r3, $0E           ; omitt all but first quadrant.
+	lda col1                ; .A = primary colour
+        cmp col1                ; .Z = 1, fill on the inside
+	jsr draw_circle
         ; draw upper right corner
 	; draw lower left corner
         ; draw lower right corner
